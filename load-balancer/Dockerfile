@@ -1,7 +1,7 @@
 # Use the standard Nginx image from Docker Hub
 FROM nginx
 
-LABEL arydwimarta
+LABEL ary dwimarta
 
 # Copy custom configuration file from the current directory
 COPY nginx.conf /etc/nginx/nginx.conf
