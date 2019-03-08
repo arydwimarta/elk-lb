@@ -95,4 +95,4 @@ services:
 networks:
 
   elk:
-driver: bridge
+    driver: bridge
