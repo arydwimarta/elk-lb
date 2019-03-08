@@ -1,0 +1,98 @@
+version: '3.5'
+
+services:
+
+  elasticsearch:
+    build:
+      context: elasticsearch/
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: test123
+    networks:
+      - elk
+
+  logstash:
+    build:
+      context: logstash/
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5000:5000"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana1:
+    build:
+      context: kibana/
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: ary
+      ELASTICSEARCH_PASSWORD: test123
+    tty: true
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+
+  kibana2:
+    build:
+      context: kibana/
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: ary
+      ELASTICSEARCH_PASSWORD: test123
+    tty: true
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+
+  kibana3:
+    build:
+      context: kibana/
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: ary
+      ELASTICSEARCH_PASSWORD: test123
+    tty: true
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+        
+  loadbalancer:
+      build: ./load-balancer
+      tty: true
+      links:
+          - kibana1
+      ports:
+          - '8080:8080'
+      networks:
+        - elk
+
+networks:
+
+  elk:
+driver: bridge
